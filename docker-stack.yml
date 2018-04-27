@@ -1,0 +1,42 @@
+version: "3.6"
+services:
+  database:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_DATABASE: churchcrm
+      MYSQL_USER: churchcrm
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+      - db_root_password
+    networks:
+      - innet
+  web:
+    image: mrconcept/churchcrm
+    environment:
+      MYSQL_DB_HOST: database
+      MYSQL_DB_PORT: 3306
+      MYSQL_DATABASE: churchcrm
+      MYSQL_USER: churchcrm
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      SERVER_NAME: churchcrm
+      TIME_ZONE: Europe/London
+      CHURHCRM_URL: "http://localhost:8080"
+      CHURCHCRM_ROOT_PATH: ""
+      CHURCHCRM_BACKUP_LOCATION: "/backup"
+    networks:
+      - innet
+    ports:
+      - "8080:80"
+    secrets:
+      - db_password
+networks:
+  innet:
+    name: internal-network
+    internal: true
+secrets:
+  db_password:
+    file: ./db_password.txt
+  db_root_password:
+    file: ./db_root_password.txt
